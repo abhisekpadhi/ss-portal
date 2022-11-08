@@ -1,0 +1,52 @@
+import {IUserAccount} from '@backend/models/user';
+
+// -- state type
+// Usually imported type/interface from @backend with some keys omitted or introduced
+// example:
+// export type IUserAccountState = Omit<
+//     IUserAccount,
+//     'id' | 'createdAt' | 'currentActive'
+// >;
+
+// -- initial state
+// Initial values for this state object
+// example:
+// const initialState: IUserAccountState = {
+//     userId: '',
+//     fullName: '',
+//     email: '',
+//     phone: '',
+// };
+
+// -- action types
+// example:
+// export const ADD_USER_ACCOUNT = 'ADD_USER_ACCOUNT';
+
+// -- actions
+// dispatch-able actions
+// example:
+// export const addUserAccount = (userAccount: Partial<IUserAccountState>) => ({
+//     type: ADD_USER_ACCOUNT,
+//     data: userAccount,
+// });
+
+// -- reducer
+// state operations based on the action type
+// example:
+// const userAccountReducer = (
+//     state = initialState,
+//     action: any,
+// ) => {
+//     switch (action.type) {
+//         case ADD_USER_ACCOUNT:
+//             return {
+//                 ...state,
+//                 ...action.data,
+//             };
+//         default:
+//             return state;
+//     }
+// };
+
+// -- make sure to whitelist the reducer in the store.tsx for persistence
+// export default userAccountReducer;
