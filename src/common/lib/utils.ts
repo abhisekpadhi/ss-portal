@@ -2,9 +2,9 @@ import {SnackObservable, TSnackPayload} from '../observables';
 
 export function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(_ => {
-        SnackObservable.next({
-            severity: 'success',
+        notify({
             message: 'Copied to clipboard!',
+            severity: 'success',
         });
     });
 }

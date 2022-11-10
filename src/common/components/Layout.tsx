@@ -16,6 +16,7 @@ import {useRouter} from 'next/router';
 import SchoolIcon from '@mui/icons-material/School';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import PreviewIcon from '@mui/icons-material/Preview';
 import {COLORS} from '../../constants';
 
 const drawerWidth = 240;
@@ -26,6 +27,11 @@ const paths = [
         path: '/app/agents',
         name: 'Agents',
         icon: <SupportAgentIcon />,
+    },
+    {
+        path: '/app/trustee',
+        name: 'Trustee',
+        icon: <PreviewIcon />,
     },
     {
         path: '/app/vault',

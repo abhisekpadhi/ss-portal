@@ -9,6 +9,7 @@ function CustomButton(props: {
     onClick: () => void;
     color?: 'primary' | 'secondary';
     variant?: 'contained' | 'outlined';
+    style?: object;
 }) {
     return (
         <Button
@@ -16,7 +17,7 @@ function CustomButton(props: {
             disabled={props.disabled || props.progress}
             onClick={props.onClick}
             variant={props.variant ?? 'contained'}
-            sx={{width: 240, height: 46}}>
+            sx={{width: 240, height: 46, ...props.style}}>
             {props.progress ? (
                 <BeatLoader size={12} color={COLORS.theme} />
             ) : (
