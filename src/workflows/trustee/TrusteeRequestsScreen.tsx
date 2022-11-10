@@ -1,16 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import Container from '@mui/material/Container';
-import {getTrusteeRequests} from './api';
+import {getTrusteeRequests, grantRequest, rejectRequest} from './api';
 import {notify} from '../../common/lib/utils';
 import {TTrusteeAccessRequestsDataForPortal} from 'models/trustee-vault-access';
 import TrusteeRequestsTable from './components/TrusteeRequestsTable';
 import Box from '@mui/material/Box';
 import CustomButton from '../../common/components/CustomButton';
 import CustomDialog from '../../common/components/CustomDialog';
-import {Button, IconButton, TextField} from '@mui/material';
-import CustomTextField from '../../common/components/CustomTextField';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import SendIcon from '@mui/icons-material/Send';
+import {BeatLoader} from 'react-spinners';
+import {COLORS} from '../../constants';
 
 function TrusteeRequestsScreen() {
     const [fetching, setFetching] = useState(false);
@@ -58,58 +56,109 @@ function TrusteeRequestsScreen() {
     useEffect(() => {
         fetchData().then(_ => {});
     }, []);
+    const [requestId, setRequestId] = useState('');
     const [open, setOpen] = useState(false);
-    const [commentText, setCommentText] = useState('');
-
+    const [grant, setGrant] = useState(false);
+    const [reject, setReject] = useState(false);
+    const [progress, setProgress] = useState(false);
+    const handleGrant = async () => {
+        setProgress(true);
+        try {
+            const res = await grantRequest({requestId});
+            if (res.data.message === 'ok') {
+                notify({
+                    message: 'Granted access',
+                    severity: 'success',
+                });
+            } else {
+                notify({
+                    message: 'Failed to grant access. Error' + res.data.message,
+                    severity: 'error',
+                });
+            }
+            setRequestId('');
+            setOpen(false);
+            setGrant(false);
+            await fetchData();
+        } catch (e) {
+            console.debug('error', e);
+            notify({
+                message: 'Failed to grant access, server error',
+                severity: 'error',
+            });
+        }
+    };
+    const handleReject = async () => {
+        setProgress(true);
+        try {
+            const res = await rejectRequest({requestId});
+            if (res.data.message === 'ok') {
+                notify({
+                    message: 'Rejected access',
+                    severity: 'success',
+                });
+            } else {
+                notify({
+                    message:
+                        'Failed to reject access. Error' + res.data.message,
+                    severity: 'error',
+                });
+            }
+            setRequestId('');
+            setOpen(false);
+            setReject(false);
+            await fetchData();
+        } catch (e) {
+            console.debug('error', e);
+            notify({
+                message: 'Failed to reject access, server error',
+                severity: 'error',
+            });
+        }
+    };
+    useEffect(() => {
+        if (requestId.length > 0) {
+            setOpen(true);
+        }
+    }, [requestId]);
+    useEffect(() => {
+        if (grant && requestId.length > 0) {
+            handleGrant().then(_ => {});
+        }
+    }, [requestId, grant]);
+    useEffect(() => {
+        if (reject && requestId.length > 0) {
+            handleReject().then(_ => {});
+        }
+    }, [requestId, reject]);
     const getDialogContent = () => {
         return (
             <Box>
-                <Box mt={2}>
-                    <CustomButton
-                        label={'Approve request'}
-                        progress={false}
-                        onClick={() => {}}
-                    />
-                </Box>
-                <Box mt={2}>
-                    <Box sx={{fontSize: 18, fontWeight: 800}}>Comments</Box>
-                    <ul>
-                        <li>Added some random comment</li>
-                        <li>Added some random comment</li>
-                    </ul>
-                    <Box mt={2} mb={1}>
-                        Add a comment
-                    </Box>
-                    <Box
-                        display={'flex'}
-                        flexDirection={'row'}
-                        alignItems={'center'}
-                        flex={1}>
-                        <Box display={'flex'} flex={8}>
-                            <CustomTextField
-                                id={'commentInput'}
-                                label={'Comment'}
-                                value={commentText}
-                                onChange={text => {
-                                    setCommentText(
-                                        text.replace(/[^0-9.]/g, ''),
-                                    );
-                                }}
-                                style={{
-                                    width: '100%',
+                {progress ? (
+                    <BeatLoader size={12} color={COLORS.theme} />
+                ) : (
+                    <Box>
+                        <Box mt={2}>
+                            <CustomButton
+                                label={'Approve request'}
+                                progress={false}
+                                onClick={() => {
+                                    setGrant(true);
                                 }}
                             />
                         </Box>
-                        <Box display={'flex'} flex={2} ml={2}>
-                            <IconButton
-                                onClick={() => {}}
-                                aria-label="add comment"
-                                size="small">
-                                <SendIcon fontSize="large" />
-                            </IconButton>
+                        <Box mt={2}>
+                            <CustomButton
+                                label={'Reject request'}
+                                progress={false}
+                                onClick={() => {
+                                    setReject(true);
+                                }}
+                                color={'secondary'}
+                            />
                         </Box>
                     </Box>
-                </Box>
+                )}
             </Box>
         );
     };
@@ -118,22 +167,29 @@ function TrusteeRequestsScreen() {
             <Box>
                 <TrusteeRequestsTable
                     rows={data}
-                    onPressAction={() => setOpen(true)}
+                    onPressAction={(requestId: string) =>
+                        setRequestId(requestId)
+                    }
                 />
             </Box>
             <Box mt={3} textAlign={'center'}>
                 <CustomButton
                     label={'Load more'}
                     progress={offset === 0 ? fetching : fetchingMore}
-                    onClick={fetchData}
+                    onClick={() => {
+                        fetchData().then(_ => {});
+                    }}
                 />
             </Box>
             <Box>
                 <CustomDialog
                     open={open}
                     setOpen={setOpen}
-                    title={'Request comments'}
+                    title={'Request actions'}
                     dialogContent={getDialogContent()}
+                    onClose={() => {
+                        setRequestId('');
+                    }}
                 />
             </Box>
         </Container>

@@ -12,7 +12,10 @@ import {
     TableRow,
 } from '@mui/material';
 import React, {useState} from 'react';
-import {TTrusteeAccessRequestsDataForPortal} from 'models/trustee-vault-access';
+import {
+    TrusteeVaultAccessRequestStatus,
+    TTrusteeAccessRequestsDataForPortal,
+} from 'models/trustee-vault-access';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {clipText, copyToClipboard, notify} from '../../../common/lib/utils';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -23,7 +26,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 function TrusteeRequestsTable(props: {
     rows: TTrusteeAccessRequestsDataForPortal[];
-    onPressAction: () => void;
+    onPressAction: (requestId: string) => void;
 }) {
     const [downloading, setDownloading] = useState(false);
     const downloadFile = async (url: string) => {
@@ -45,6 +48,32 @@ function TrusteeRequestsTable(props: {
         }
     };
     const {rows} = props;
+    const getStatusChip = (text: string) => {
+        let color:
+            | 'success'
+            | 'error'
+            | 'info'
+            | 'default'
+            | 'primary'
+            | 'secondary'
+            | 'warning'
+            | undefined = 'default';
+        switch (text) {
+            case 'GRANTED':
+                color = 'success';
+                break;
+            case 'REJECTED':
+                color = 'error';
+                break;
+            case 'CANCELLED':
+                color = 'default';
+                break;
+            default:
+                color = 'info';
+                break;
+        }
+        return <Chip label={text} color={color} />;
+    };
     return (
         <TableContainer component={Paper}>
             <Table sx={{minWidth: 650}} aria-label="simple table">
@@ -54,6 +83,7 @@ function TrusteeRequestsTable(props: {
                         <TableCell>Owner</TableCell>
                         <TableCell>Trustee</TableCell>
                         <TableCell>Document</TableCell>
+                        <TableCell>Status</TableCell>
                         <TableCell>Action</TableCell>
                     </TableRow>
                 </TableHead>
@@ -124,9 +154,12 @@ function TrusteeRequestsTable(props: {
                                 </Button>
                             </TableCell>
                             <TableCell>
+                                {getStatusChip(row.requestStatus)}
+                            </TableCell>
+                            <TableCell>
                                 <IconButton
                                     onClick={() => {
-                                        props.onPressAction();
+                                        props.onPressAction(row.requestId);
                                     }}
                                     aria-label="options"
                                     size="small">
