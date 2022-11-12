@@ -3,8 +3,8 @@ import {useState} from 'react';
 
 type Props = {
     id: string;
-    label: string;
     value: string;
+    label?: string;
     variant?: 'standard' | 'filled' | 'outlined';
     onChange?: (text: string) => void;
     error?: boolean;

@@ -15,16 +15,16 @@ a {
     box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: light) {
-    html {
-        color-scheme: light;
-    }
+/*@media (prefers-color-scheme: light) {*/
+/*    html {*/
+/*        color-scheme: light;*/
+/*    }*/
 
-    body {
-        color: black;
-        background: white;
-    }
-}
+/*    body {*/
+/*        color: black;*/
+/*        background: white;*/
+/*    }*/
+/*}*/
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {

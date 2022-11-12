@@ -174,6 +174,7 @@ function TrusteeRequestsScreen() {
             </Box>
             <Box mt={3} textAlign={'center'}>
                 <CustomButton
+                    disabled={!hasMore}
                     label={'Load more'}
                     progress={offset === 0 ? fetching : fetchingMore}
                     onClick={() => {

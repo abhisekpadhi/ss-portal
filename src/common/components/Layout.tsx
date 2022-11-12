@@ -40,7 +40,7 @@ const paths = [
     },
     {
         path: '/app/learn',
-        name: 'Learn',
+        name: 'learn',
         icon: <SchoolIcon />,
     },
 ];
