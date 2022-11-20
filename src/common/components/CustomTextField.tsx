@@ -12,6 +12,9 @@ type Props = {
     style?: React.CSSProperties;
     inputProps?: InputBaseProps['inputProps'];
     placeholder?: string;
+    multiline?: boolean;
+    rows?: number;
+    disabled?: boolean;
 };
 
 function CustomTextField(props: Props) {
@@ -30,6 +33,12 @@ function CustomTextField(props: Props) {
             helperText={props.helperText}
             inputProps={props.inputProps}
             placeholder={props.placeholder}
+            multiline={props.multiline ?? false}
+            rows={props.rows ?? 6}
+            disabled={props.disabled ?? false}
+            onWheel={event => {
+                event.currentTarget.blur();
+            }}
         />
     );
 }

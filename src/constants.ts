@@ -23,3 +23,8 @@ export const COLORS = {
 export type SeverityTypes = 'success' | 'error' | 'warn' | 'info';
 
 export const adminEmails = ['avicool000@gmail.com', 'kataria.nr@gmail.com'];
+
+export const INPUT_NAME_LEN_DEFAULT = 36;
+export const INPUT_MAX_LEN_DEFAULT = 36;
+export const INPUT_NAME_LEN_MAX = 128;
+export const INPUT_HELPER_TXT_LEN_DEFAULT = 128;

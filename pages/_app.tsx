@@ -68,7 +68,6 @@ const MyApp: React.FunctionComponent<MyAppProps> = (props: any) => {
     useEffect(() => {
         SnackObservable.subscribe({
             next: (value: TSnackPayload) => {
-                console.log('received snack payload', value);
                 setSnack(value);
             },
         });
