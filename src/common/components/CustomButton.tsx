@@ -17,7 +17,12 @@ function CustomButton(props: {
             disabled={props.disabled || props.progress}
             onClick={props.onClick}
             variant={props.variant ?? 'contained'}
-            sx={{width: 240, height: 46, ...props.style}}>
+            sx={{
+                textTransform: 'none',
+                width: 240,
+                height: 46,
+                ...props.style,
+            }}>
             {props.progress ? (
                 <BeatLoader size={12} color={COLORS.theme} />
             ) : (

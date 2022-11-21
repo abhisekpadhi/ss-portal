@@ -1,4 +1,10 @@
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from '@mui/material';
 import Button from '@mui/material/Button';
 import React from 'react';
 import {
@@ -9,6 +15,7 @@ import {
 } from '@mui/icons-material';
 import Box from '@mui/material/Box';
 import {COLORS, SeverityTypes} from '../../constants';
+import ProgressIndicator from './ProgressIndicator';
 
 export interface AlertDialogProps {
     open: boolean;
@@ -25,6 +32,7 @@ export interface AlertDialogProps {
         agreeIsDanger?: boolean;
     };
     status?: SeverityTypes;
+    progress?: boolean;
 }
 
 export default function AlertDialog(props: AlertDialogProps) {
@@ -37,17 +45,25 @@ export default function AlertDialog(props: AlertDialogProps) {
         }
         return (
             <DialogActions>
-                <Button onClick={() => {
-                    props.buttons!.onDisagree ? props.buttons!.onDisagree() : handleClose();
-                }}>
+                <Button
+                    onClick={() => {
+                        props.buttons!.onDisagree
+                            ? props.buttons!.onDisagree()
+                            : handleClose();
+                    }}>
                     {props.buttons.disagreeLabel}
                 </Button>
-                <Button color={props.buttons?.agreeIsDanger ? 'secondary' : 'primary'} onClick={props.buttons!.onAgree} autoFocus>
+                <Button
+                    color={
+                        props.buttons?.agreeIsDanger ? 'secondary' : 'primary'
+                    }
+                    onClick={props.buttons!.onAgree}
+                    autoFocus>
                     {props.buttons.agreeLabel}
                 </Button>
             </DialogActions>
-        )
-    }
+        );
+    };
     const getDefaultBtns = () => {
         return (
             <DialogActions>
@@ -55,8 +71,8 @@ export default function AlertDialog(props: AlertDialogProps) {
                     {props.btnLabel ? props.btnLabel : 'OK'}
                 </Button>
             </DialogActions>
-        )
-    }
+        );
+    };
     const getSuccessIcon = () => (
         <CheckCircleOutline sx={{fontSize: '4rem', color: COLORS.success}} />
     );
@@ -71,7 +87,7 @@ export default function AlertDialog(props: AlertDialogProps) {
     );
     const getStatusIcon = () => {
         if (!props.status) {
-            return null
+            return null;
         }
         switch (props.status) {
             case 'success':
@@ -91,25 +107,45 @@ export default function AlertDialog(props: AlertDialogProps) {
             open={props.open}
             onClose={handleClose}
             aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            {props.status && (
-                <Box sx={{height: 16, backgroundColor: COLORS[props.status], width: '100%'}}/>
-            )}
-            {props.status && (
-                <Box sx={{textAlign: 'center', pt: 4}}>
-                    {getStatusIcon()}
+            aria-describedby="alert-dialog-description">
+            {props.progress ? (
+                <Box
+                    sx={{
+                        height: 320,
+                        width: 320,
+                    }}
+                    display={'flex'}
+                    alignItems={'center'}
+                    justifyContent={'center'}>
+                    <ProgressIndicator />
                 </Box>
+            ) : (
+                <>
+                    {props.status && (
+                        <Box
+                            sx={{
+                                height: 16,
+                                backgroundColor: COLORS[props.status],
+                                width: '100%',
+                            }}
+                        />
+                    )}
+                    {props.status && (
+                        <Box sx={{textAlign: 'center', pt: 4}}>
+                            {getStatusIcon()}
+                        </Box>
+                    )}
+                    <DialogTitle id="alert-dialog-title">
+                        {props.title}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {props.body}
+                        </DialogContentText>
+                    </DialogContent>
+                    {props.buttons ? getUserDefinedBtns() : getDefaultBtns()}
+                </>
             )}
-            <DialogTitle id="alert-dialog-title">
-                {props.title}
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                    {props.body}
-                </DialogContentText>
-            </DialogContent>
-            {props.buttons ? getUserDefinedBtns() : getDefaultBtns()}
         </Dialog>
-    )
+    );
 }

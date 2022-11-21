@@ -91,7 +91,9 @@ export const getInputs = (payload: {
 };
 
 export const addInput = (payload: IInputTypeAddReq) => {
-    return ApiUtils.makePostRequestWithJsonBody<{data: IVaultDataInputType}>(
+    return ApiUtils.makePostRequestWithJsonBody<{
+        data: {inputType: IVaultDataInputType};
+    }>(
         API_URL +
             ApiRoutes.vaultDataInputs.root +
             ApiRoutes.vaultDataInputs.routes.add,
@@ -100,7 +102,9 @@ export const addInput = (payload: IInputTypeAddReq) => {
 };
 
 export const updateInput = (payload: IInputTypeUpdateReq) => {
-    return ApiUtils.makePostRequestWithJsonBody<{data: IVaultDataInputType}>(
+    return ApiUtils.makePostRequestWithJsonBody<{
+        data: {inputType: IVaultDataInputType};
+    }>(
         API_URL +
             ApiRoutes.vaultDataInputs.root +
             ApiRoutes.vaultDataInputs.routes.update,
@@ -108,7 +112,7 @@ export const updateInput = (payload: IInputTypeUpdateReq) => {
     );
 };
 
-export const removeInputs = (payload: IInputTypeRemoveReq) => {
+export const removeInput = (payload: IInputTypeRemoveReq) => {
     return ApiUtils.makePostRequestWithJsonBody<IApiResponse>(
         API_URL +
             ApiRoutes.vaultDataInputs.root +

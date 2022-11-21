@@ -7,9 +7,12 @@ import {
     addSubCategory,
     getInputs,
     getTaxonomy,
+    removeInput,
+    updateInput,
 } from '../api';
 import {
     IInputTypeAddReq,
+    IInputTypeUpdateReq,
     ITaxonomyCache,
     IVaultDataInputType,
     IVaultInputFileType,
@@ -34,6 +37,9 @@ import CustomTextField from '../../../common/components/CustomTextField';
 import CustomButton from '../../../common/components/CustomButton';
 import {INPUT_MAX_LEN_DEFAULT} from '../../../constants';
 import {IVaultInputType} from 'models/vault-input-type';
+import AlertDialog, {
+    AlertDialogProps,
+} from '../../../common/components/alert-dialog';
 
 function Taxonomy() {
     const [fetching, setFetching] = useState(true);
@@ -57,6 +63,9 @@ function Taxonomy() {
     // input
     const [addInputKey, setAddInputKey] = useState('');
     const [addInputModalOpen, seteAddInputModalOpen] = useState(false);
+
+    const [dialog, setDialog] =
+        React.useState<Partial<AlertDialogProps> | null>(null);
 
     useEffect(() => {
         if (addInputKey !== '') {
@@ -82,6 +91,7 @@ function Taxonomy() {
             });
         }
     };
+
     const fetchInputs = async (catId: string, subCatId: string) => {
         const key = `${catId}:${subCatId}`;
         setFetchingInputs(key);
@@ -115,6 +125,78 @@ function Taxonomy() {
         fetchData().then(_ => {});
     }, []);
 
+    const [editInputId, setEditInputId] = useState('');
+    const handleDeleteInput = (key: string) => {
+        const [categoryId, subCategoryId, inputTypeId] = key.split(':');
+        const doDeleteInput = async (inputTypeId: string) => {
+            setProgress(true);
+            try {
+                const res = await removeInput({inputTypeId});
+                if (res.data.message === 'ok') {
+                    notify({message: 'Input removed', severity: 'success'});
+                } else {
+                    console.debug(res);
+                    notify({message: 'Failed to remove', severity: 'error'});
+                }
+                setProgress(false);
+                setDialog(null);
+                const inputKey = `${categoryId}:${subCategoryId}`;
+                setInputsData(prev => ({
+                    ...prev,
+                    [inputKey]: [
+                        ...prev[inputKey].filter(
+                            o => o.inputTypeId !== inputTypeId,
+                        ),
+                    ],
+                }));
+            } catch (e) {
+                setProgress(false);
+                console.debug('err', e);
+                notify({
+                    message: 'Failed to remove',
+                    severity: 'error',
+                });
+            }
+        };
+        setDialog({
+            title: 'Do you want to remove input?',
+            status: 'warn',
+            buttons: {
+                agreeLabel: 'Yes, delete',
+                onAgree: () => {
+                    (async () => {
+                        await doDeleteInput(inputTypeId);
+                    })();
+                },
+                disagreeLabel: 'No, keep it',
+                onDisagree: () => {
+                    setDialog(null);
+                },
+                agreeIsDanger: true,
+            },
+        });
+    };
+    useEffect(() => {
+        if (editInputId !== '') {
+            const [categoryId, subCategoryId, inputTypeId] =
+                editInputId.split(':');
+            const key = `${categoryId}:${subCategoryId}`;
+            const data = inputsData[key].find(
+                o => o.inputTypeId === inputTypeId,
+            )! as IVaultDataInputType;
+            setType(data.type);
+            setFileType(data.fileType);
+            setInputName(data.inputName);
+            setHelperText(data.helperText);
+            setMaxLen(data.maxLen);
+            setMultiline(data.multiline);
+            setKeyboardType(data.keyboardType);
+            setInputOptions(data.inputOptions.replaceAll('::', '\n'));
+            setAutoSuggest(data.autoSuggest);
+            setMandatory(data.mandatory);
+            seteAddInputModalOpen(true);
+        }
+    }, [editInputId]);
     const showInputs = (catId: string, subCatId: string) => {
         if (catId === '' || subCatId === '') {
             return <></>;
@@ -140,7 +222,58 @@ function Taxonomy() {
         }
         return (
             <Box>
-                <Box>Form data... Edit button</Box>
+                <Box>
+                    {key in inputsData &&
+                        inputsData[key].map(o => (
+                            <Box
+                                key={o.inputTypeId}
+                                sx={{
+                                    borderBottom: '1px solid #cdc',
+                                    paddingBottom: '10px',
+                                }}>
+                                <Box>
+                                    Type: {o.type}, fileType: {o.fileType}
+                                </Box>
+                                <Box>
+                                    Input name: {o.inputName}, helperText:{' '}
+                                    {o.helperText}
+                                </Box>
+                                <Box>
+                                    Max length: {o.maxLen}, multiline:{' '}
+                                    {o.multiline}
+                                </Box>
+                                <Box>
+                                    Keyboard type: {o.keyboardType},
+                                    inputOptions: {o.inputOptions}
+                                </Box>
+                                <Box>
+                                    Autosuggest:{' '}
+                                    {o.autoSuggest === 1 ? '✅' : '❌'},
+                                    mandatory: {o.mandatory === 1 ? '✅' : '❌'}
+                                </Box>
+                                <Box sx={{mt: 2}}>
+                                    <Button
+                                        onClick={() => {
+                                            const key = `${o.categoryId}:${o.subCategoryId}:${o.inputTypeId}`;
+                                            setEditInputId(key);
+                                        }}
+                                        variant={'outlined'}>
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        sx={{marginLeft: 2}}
+                                        color={'secondary'}
+                                        onClick={() => {
+                                            const key = `${o.categoryId}:${o.subCategoryId}:${o.inputTypeId}`;
+                                            handleDeleteInput(key);
+                                        }}
+                                        variant={'outlined'}>
+                                        Delete
+                                    </Button>
+                                </Box>
+                            </Box>
+                        ))}
+                </Box>
                 <Box mt={2}>
                     <Button
                         disabled={fetchingInputs.length > 0}
@@ -307,9 +440,17 @@ function Taxonomy() {
     const handleAddInput = async () => {
         setProgress(true);
         try {
-            const catId = addInputKey.split(':')[0];
-            const subCatId = addInputKey.split(':')[1];
-            const payload: IInputTypeAddReq = {
+            let catId = '';
+            let subCatId = '';
+            let inputTypeId = '';
+            if (editInputId !== '') {
+                [catId, subCatId, inputTypeId] = editInputId.split(':');
+            } else {
+                catId = addInputKey.split(':')[0];
+                subCatId = addInputKey.split(':')[1];
+            }
+            const payload: IInputTypeAddReq | IInputTypeUpdateReq = {
+                inputTypeId,
                 categoryId: catId,
                 subCategoryId: subCatId,
                 type: type as IVaultInputType,
@@ -329,17 +470,25 @@ function Taxonomy() {
                               .map(o => o.trim())
                               .join('::'),
             };
-            const res = await addInput(payload);
+            const res = await (editInputId === '' ? addInput : updateInput)(
+                payload,
+            );
             console.log('res', res);
             if (res.data !== null) {
                 notify({
-                    message: 'Input added',
+                    message: 'Input added/updated',
                     severity: 'success',
                 });
                 // add to state
+                const inputKey = `${catId}:${subCatId}`;
                 setInputsData(prev => ({
                     ...prev,
-                    [addInputKey]: [...prev[addInputKey], res.data],
+                    [inputKey]: [
+                        ...prev[inputKey].filter(
+                            o => o.inputTypeId !== inputTypeId,
+                        ),
+                        res.data.inputType,
+                    ],
                 }));
             } else {
                 notify({
@@ -370,6 +519,7 @@ function Taxonomy() {
         setSubCatPic('');
         setCatIdForSubCat('');
         setAddInputKey('');
+        setEditInputId('');
         resetInputForm();
     };
     const canAddSubCategory = () => {
@@ -400,11 +550,11 @@ function Taxonomy() {
     const [inputName, setInputName] = useState('');
     const [helperText, setHelperText] = useState('');
     const [maxLen, setMaxLen] = useState(36);
-    const [multiline, setMultiline] = useState<0 | 1>(0);
+    const [multiline, setMultiline] = useState<number>(0); // 0 | 1
     const [keyboardType, setKeyboardType] = useState('DEFAULT');
     const [inputOptions, setInputOptions] = useState('');
-    const [autoSuggest, setAutoSuggest] = useState<0 | 1>(0);
-    const [mandatory, setMandatory] = useState<0 | 1>(0);
+    const [autoSuggest, setAutoSuggest] = useState<number>(0); // 0 | 1
+    const [mandatory, setMandatory] = useState<number>(0); // 0 | 1
     const resetInputForm = () => {
         setType('');
         setFileType('');
@@ -521,6 +671,7 @@ function Taxonomy() {
                             <FormControlLabel
                                 control={
                                     <Switch
+                                        checked={multiline === 1}
                                         onChange={e =>
                                             setMultiline(
                                                 e.target.checked ? 1 : 0,
@@ -579,6 +730,7 @@ function Taxonomy() {
                             <FormControlLabel
                                 control={
                                     <Switch
+                                        checked={autoSuggest === 1}
                                         onChange={e =>
                                             setAutoSuggest(
                                                 e.target.checked ? 1 : 0,
@@ -597,6 +749,7 @@ function Taxonomy() {
                             <FormControlLabel
                                 control={
                                     <Switch
+                                        checked={mandatory === 1}
                                         onChange={e =>
                                             setMandatory(
                                                 e.target.checked ? 1 : 0,
@@ -612,7 +765,9 @@ function Taxonomy() {
                 <Box>
                     <CustomButton
                         disabled={!canAddInput()}
-                        label={'Add input'}
+                        label={
+                            (editInputId !== '' ? 'Update' : 'Add') + ' input'
+                        }
                         progress={progress}
                         onClick={handleAddInput}
                         style={{
@@ -759,10 +914,21 @@ function Taxonomy() {
             <CustomDialog
                 open={addInputModalOpen}
                 setOpen={seteAddInputModalOpen}
-                title={'Add new input'}
+                title={editInputId !== '' ? 'Update input' : 'Add new input'}
                 dialogContent={addInputModalContent()}
                 onClose={handleModalClose}
             />
+            {dialog && (
+                <AlertDialog
+                    progress={progress}
+                    open={dialog.title ? dialog.title.length > 0 : false}
+                    onClose={() => setDialog(null)}
+                    title={dialog?.title || ''}
+                    body={dialog.body || ''}
+                    status={dialog.status || 'info'}
+                    {...dialog}
+                />
+            )}
         </Box>
     );
 }
