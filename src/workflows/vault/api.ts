@@ -2,6 +2,7 @@ import {ApiUtils, makeParams} from '../../common/lib/ApiUtils';
 import {API_URL} from '../../common/lib/endpoints';
 import {ApiRoutes} from 'models/api-routes';
 import {
+    IDocUpload,
     IInputTypeAddReq,
     IInputTypeRemoveReq,
     IInputTypeUpdateReq,
@@ -13,6 +14,9 @@ import {
     IVaultSubCategoryAddReq,
     IVaultSubCategoryRemoveReq,
     IVaultSubCategoryUpdateReq,
+    THistory,
+    TUrlsOfUpload,
+    TVaultDataResponse,
 } from 'models/vault';
 import {IApiResponse} from 'models/common';
 
@@ -118,5 +122,20 @@ export const removeInput = (payload: IInputTypeRemoveReq) => {
             ApiRoutes.vaultDataInputs.root +
             ApiRoutes.vaultDataInputs.routes.remove,
         payload,
+    );
+};
+
+export const getDataOfUser = (payload: {
+    userPhone: string;
+    limit: number;
+    offset: number;
+}) => {
+    return ApiUtils.makeGetRequest<{
+        data: TVaultDataResponse;
+    }>(
+        API_URL +
+            ApiRoutes.vaultData.root +
+            ApiRoutes.vaultData.routes.getAllDataOfUser +
+            makeParams(payload),
     );
 };
