@@ -119,7 +119,7 @@ function Data() {
                                     rel="noreferrer">
                                     File
                                 </a>
-                                <OpenInNewIcon size={2} sx={{color: 'blue'}} />
+                                <OpenInNewIcon sx={{color: 'blue'}} />
                             </Box>
                         ),
                     );
