@@ -108,6 +108,7 @@ function Data() {
                     const items = (JSON.parse(unit.files) as string[]).map(
                         docId => (
                             <Box
+                                key={docId}
                                 marginX={1}
                                 marginY={1}
                                 display={'flex'}
