@@ -14,6 +14,7 @@ import CustomTextField from '../../../common/components/CustomTextField';
 import {
     IDocUpload,
     THistory,
+    THistoryUnit,
     TUrlsOfUpload,
     TVaultDataResponse,
 } from 'models/vault';
@@ -21,6 +22,8 @@ import {getDataOfUser} from '../api';
 import {notify} from '../../../common/lib/utils';
 import ProgressIndicator from '../../../common/components/ProgressIndicator';
 import {TableBar} from '@mui/icons-material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import dayjs from 'dayjs';
 
 const fetchLimit = 100;
 
@@ -81,6 +84,74 @@ function Data() {
         }
     };
 
+    const renderHistoryUnit = (unit: THistoryUnit) => {
+        const renderValue = (key: string) => {
+            switch (key) {
+                case 'inputType':
+                    return (
+                        <Box>
+                            <Box>Input type: {unit.inputType.type}</Box>
+                            <Box>File type: {unit.inputType.fileType}</Box>
+                            <Box>Input name: {unit.inputType.inputName}</Box>
+                        </Box>
+                    );
+                case 'createdAt':
+                    return (
+                        <Box>
+                            {dayjs(unit.createdAt).format('DD/MM/YYYY hh:mm a')}
+                        </Box>
+                    );
+                case 'files':
+                    if (unit.files === '') {
+                        return <></>;
+                    }
+                    const items = (JSON.parse(unit.files) as string[]).map(
+                        docId => (
+                            <Box
+                                marginX={1}
+                                marginY={1}
+                                display={'flex'}
+                                alignItems={'center'}>
+                                <a
+                                    style={{color: 'blue', marginRight: 1.2}}
+                                    target={'_blank'}
+                                    href={data?.urlsOfUploads[docId] ?? '#'}
+                                    rel="noreferrer">
+                                    File
+                                </a>
+                                <OpenInNewIcon size={2} sx={{color: 'blue'}} />
+                            </Box>
+                        ),
+                    );
+                    return <Box>{items}</Box>;
+                default:
+                    return (
+                        <Box>{(unit as {[k: string]: any})[key] as string}</Box>
+                    );
+            }
+        };
+        return Object.keys(unit).map(key => {
+            if (
+                key === 'inputTypeId' ||
+                key === 'currentActive' ||
+                key === 'id'
+            ) {
+                return <></>;
+            }
+            return (
+                <TableRow key={`unit:${key}`}>
+                    <TableCell
+                        sx={{
+                            background: '#e5e5e5',
+                            width: 136,
+                        }}>
+                        {key}
+                    </TableCell>
+                    <TableCell>{renderValue(key)}</TableCell>
+                </TableRow>
+            );
+        });
+    };
     return (
         <Box>
             <Box display={'flex'} alignItems={'center'}>
@@ -137,61 +208,8 @@ function Data() {
                                                         <TableBody>
                                                             {data.history[
                                                                 vaultDataId
-                                                            ].map(unit =>
-                                                                Object.keys(
-                                                                    unit,
-                                                                ).map(key => (
-                                                                    <TableRow>
-                                                                        <TableCell
-                                                                            sx={{
-                                                                                background:
-                                                                                    '#e5e5e5',
-                                                                                width: 136,
-                                                                            }}>
-                                                                            {
-                                                                                key
-                                                                            }
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {key ===
-                                                                            'inputType' ? (
-                                                                                <Box>
-                                                                                    <Box>
-                                                                                        Input
-                                                                                        type:{' '}
-                                                                                        {
-                                                                                            unit
-                                                                                                .inputType
-                                                                                                .type
-                                                                                        }
-                                                                                    </Box>
-                                                                                    <Box>
-                                                                                        File
-                                                                                        type:{' '}
-                                                                                        {
-                                                                                            unit
-                                                                                                .inputType
-                                                                                                .fileType
-                                                                                        }
-                                                                                    </Box>
-                                                                                    <Box>
-                                                                                        Input
-                                                                                        name:{' '}
-                                                                                        {
-                                                                                            unit
-                                                                                                .inputType
-                                                                                                .inputName
-                                                                                        }
-                                                                                    </Box>
-                                                                                </Box>
-                                                                            ) : (
-                                                                                unit[
-                                                                                    key
-                                                                                ]
-                                                                            )}
-                                                                        </TableCell>
-                                                                    </TableRow>
-                                                                )),
+                                                            ].map(
+                                                                renderHistoryUnit,
                                                             )}
                                                         </TableBody>
                                                     </Table>
