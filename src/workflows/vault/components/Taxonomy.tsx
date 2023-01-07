@@ -41,12 +41,26 @@ import AlertDialog, {
     AlertDialogProps,
 } from '../../../common/components/alert-dialog';
 
+const DEFAULTS = {
+    type: '',
+    fileType: 'NONE',
+    inputName: '',
+    helperText: '',
+    maxLen: INPUT_MAX_LEN_DEFAULT,
+    multiline: 0,
+    keyboardType: 'DEFAULT',
+    inputOptions: '',
+    autoSuggest: 0,
+    mandatory: 0,
+};
+
 function Taxonomy() {
     const [fetching, setFetching] = useState(true);
     const [data, setData] = useState<ITaxonomyCache | null>(null);
     const [inputsData, setInputsData] = useState<{
         [k: string]: IVaultDataInputType[];
     }>({});
+
     // Category
     const [newCategoryOpen, setNewCategoryOpen] = useState(false);
     const [catName, setCatName] = useState('');
@@ -57,7 +71,6 @@ function Taxonomy() {
     // Sub category
     const [newSubCategoryOpen, setNewSubCategoryOpen] = useState(false);
     const [subCatName, setSubCatName] = useState('');
-    const [subCatPic, setSubCatPic] = useState('');
     const [fetchingInputs, setFetchingInputs] = useState('');
 
     // input
@@ -349,7 +362,7 @@ function Taxonomy() {
             const payload = {
                 categoryId: catIdForSubCat,
                 subCategoryName: subCatName,
-                picUrl: subCatPic,
+                picUrl: '',
                 subCategoryDescription: '',
                 subCategoryId: subCatId,
             };
@@ -516,14 +529,13 @@ function Taxonomy() {
         setCatPic('');
         setCatName('');
         setSubCatName('');
-        setSubCatPic('');
         setCatIdForSubCat('');
         setAddInputKey('');
         setEditInputId('');
         resetInputForm();
     };
     const canAddSubCategory = () => {
-        return subCatName.length > 0 && subCatPic.startsWith('http');
+        return subCatName.length > 0;
     };
     const canAddCategory = () => {
         return (
@@ -555,17 +567,18 @@ function Taxonomy() {
     const [inputOptions, setInputOptions] = useState('');
     const [autoSuggest, setAutoSuggest] = useState<number>(0); // 0 | 1
     const [mandatory, setMandatory] = useState<number>(0); // 0 | 1
+
     const resetInputForm = () => {
-        setType('');
-        setFileType('');
-        setInputName('');
-        setHelperText('');
+        setType(DEFAULTS.type);
+        setFileType(DEFAULTS.fileType);
+        setInputName(DEFAULTS.inputName);
+        setHelperText(DEFAULTS.helperText);
         setMaxLen(INPUT_MAX_LEN_DEFAULT);
-        setMultiline(0);
-        setKeyboardType('DEFAULT');
-        setInputOptions('');
-        setAutoSuggest(0);
-        setMandatory(0);
+        setMultiline(DEFAULTS.multiline);
+        setKeyboardType(DEFAULTS.keyboardType);
+        setInputOptions(DEFAULTS.inputOptions);
+        setAutoSuggest(DEFAULTS.autoSuggest);
+        setMandatory(DEFAULTS.mandatory);
     };
 
     const addInputModalContent = () => {
@@ -846,20 +859,6 @@ function Taxonomy() {
                         onChange={setSubCatName}
                         style={{width: '100%'}}
                     />
-                </Box>
-                <Box mt={2} mb={1.4}>
-                    Picture url
-                </Box>
-                <Box mb={1.4}>
-                    <CustomTextField
-                        id={'subCatPic'}
-                        value={subCatPic}
-                        onChange={setSubCatPic}
-                        style={{width: '100%'}}
-                    />
-                </Box>
-                <Box mb={1.4}>
-                    <img src={subCatPic} style={{width: 240, height: 240}} />
                 </Box>
                 <Box>
                     <Box mb={1}>

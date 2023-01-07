@@ -6,7 +6,7 @@ export const COLORS = {
     grey: '#F2F3F2',
     screenBackground: '#F3F3F3',
     backgroundGrey: '#f2f3f2',
-    theme: '#567474',
+    theme: '#003F41',
     themeDisabled: '#ff9797',
     themeLight: '#c2ffff',
     white: '#ffffff',
