@@ -1,4 +1,5 @@
 import {
+    AlertColor,
     Dialog,
     DialogActions,
     DialogContent,
@@ -31,7 +32,7 @@ export interface AlertDialogProps {
         onDisagree?: () => void;
         agreeIsDanger?: boolean;
     };
-    status?: SeverityTypes;
+    status?: AlertColor;
     progress?: boolean;
 }
 
@@ -92,7 +93,7 @@ export default function AlertDialog(props: AlertDialogProps) {
         switch (props.status) {
             case 'success':
                 return getSuccessIcon();
-            case 'warn':
+            case 'warning':
                 return getWarnIcon();
             case 'error':
                 return getErrorIcon();

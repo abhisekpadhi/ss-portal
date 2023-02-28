@@ -1,9 +1,9 @@
 import {Subject} from 'rxjs';
-import {SeverityTypes} from '../constants';
+import {AlertColor} from '@mui/material';
 
 export type TSnackPayload = {
     message: string;
-    severity: SeverityTypes;
+    severity: AlertColor;
 };
 
 export const SnackObservable = new Subject<TSnackPayload>();

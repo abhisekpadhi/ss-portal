@@ -20,7 +20,7 @@ function TrusteeRequestsScreen() {
         if (!hasMore) {
             notify({
                 message: "That's all, no more data.",
-                severity: 'warn',
+                severity: 'warning',
             });
             return;
         }

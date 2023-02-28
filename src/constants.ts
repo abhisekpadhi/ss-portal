@@ -12,6 +12,7 @@ export const COLORS = {
     white: '#ffffff',
     danger: '#F35A50',
     warn: '#EAA900',
+    warning: '#EAA900',
     subText: '#7C7C7C',
     offWhite: '#E5E5E5',
     border: '#E2E2E2',
@@ -20,7 +21,7 @@ export const COLORS = {
     tmp: 'rgba(255,220,65,0.46)',
 };
 
-export type SeverityTypes = 'success' | 'error' | 'warn' | 'info';
+export type SeverityTypes = 'success' | 'error' | 'warning' | 'info';
 
 export const adminEmails = ['avicool000@gmail.com', 'kataria.nr@gmail.com'];
 

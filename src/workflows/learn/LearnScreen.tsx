@@ -45,7 +45,7 @@ function LearnScreen() {
         if (!hasMorePinned) {
             notify({
                 message: "That's all, no more data.",
-                severity: 'warn',
+                severity: 'warning',
             });
             return;
         }
@@ -84,7 +84,7 @@ function LearnScreen() {
         if (!hasMoreUnpinned) {
             notify({
                 message: "That's all, no more data.",
-                severity: 'warn',
+                severity: 'warning',
             });
             return;
         }
@@ -125,6 +125,10 @@ function LearnScreen() {
     const fetchData = () => {
         fetchPinned().then(_ => {});
         fetchUnPinned().then(_ => {});
+    };
+
+    const refreshPage = () => {
+        location.reload();
     };
 
     useEffect(() => {
@@ -216,7 +220,7 @@ function LearnScreen() {
             }
             setProgress(false);
             handleModalClose();
-            fetchData();
+            refreshPage();
         } catch (e) {
             setProgress(false);
             notify({
@@ -268,7 +272,7 @@ function LearnScreen() {
             }
             setProgress(false);
             handleModalClose();
-            fetchData();
+            refreshPage();
         } catch (e) {
             setProgress(false);
             notify({
@@ -294,7 +298,7 @@ function LearnScreen() {
             }
             setProgress(false);
             handleModalClose();
-            fetchData();
+            refreshPage();
         } catch (e) {
             setProgress(false);
             notify({
@@ -320,7 +324,7 @@ function LearnScreen() {
             }
             setProgress(false);
             handleModalClose();
-            fetchData();
+            refreshPage();
         } catch (e) {
             setProgress(false);
             notify({
@@ -357,7 +361,7 @@ function LearnScreen() {
             }
             setProgress(false);
             handleModalClose();
-            fetchData();
+            refreshPage();
         } catch (e) {
             setProgress(false);
             notify({

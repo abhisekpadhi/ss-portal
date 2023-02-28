@@ -93,10 +93,7 @@ const MyApp: React.FunctionComponent<MyAppProps> = (props: any) => {
                                                 vertical: 'bottom',
                                                 horizontal: 'center',
                                             }}>
-                                            <Alert
-                                                severity={
-                                                    snack.severity as AlertColor
-                                                }>
+                                            <Alert severity={snack.severity}>
                                                 {snack.message}
                                             </Alert>
                                         </Snackbar>
