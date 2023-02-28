@@ -173,7 +173,7 @@ function Taxonomy() {
         };
         setDialog({
             title: 'Do you want to remove input?',
-            status: 'warn',
+            status: 'warning',
             buttons: {
                 agreeLabel: 'Yes, delete',
                 onAgree: () => {

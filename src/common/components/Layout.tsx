@@ -54,7 +54,7 @@ function Layout(props: {children: JSX.Element}) {
     const handleLogout = () => {
         setDialog({
             title: 'Do you want to logout?',
-            status: 'warn',
+            status: 'warning',
             buttons: {
                 agreeLabel: 'Logout',
                 onAgree: () => {
