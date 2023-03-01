@@ -14,6 +14,7 @@ import {
     IVaultSubCategoryAddReq,
     IVaultSubCategoryRemoveReq,
     IVaultSubCategoryUpdateReq,
+    IVaultVaultTaxonomyNameUpdateReq,
     THistory,
     TUrlsOfUpload,
     TVaultDataResponse,
@@ -137,5 +138,16 @@ export const getDataOfUser = (payload: {
             ApiRoutes.vaultData.root +
             ApiRoutes.vaultData.routes.getAllDataOfUser +
             makeParams(payload),
+    );
+};
+
+export const updateTaxonomyName = (
+    payload: IVaultVaultTaxonomyNameUpdateReq,
+) => {
+    return ApiUtils.makePostRequestWithJsonBody<{data: string}>(
+        API_URL +
+            ApiRoutes.vaultTaxonomy.root +
+            ApiRoutes.vaultTaxonomy.routes.updateName,
+        payload,
     );
 };

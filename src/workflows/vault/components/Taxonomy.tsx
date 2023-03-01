@@ -9,6 +9,7 @@ import {
     getTaxonomy,
     removeInput,
     updateInput,
+    updateTaxonomyName,
 } from '../api';
 import {
     IInputTypeAddReq,
@@ -18,6 +19,7 @@ import {
     IVaultInputFileType,
     IVaultInputKeyboardType,
     IVaultSubCategory,
+    IVaultVaultTaxonomyNameUpdateReq,
 } from 'models/vault';
 import {notify, toCamelCase} from '../../../common/lib/utils';
 import ProgressIndicator from '../../../common/components/ProgressIndicator';
@@ -40,6 +42,7 @@ import {IVaultInputType} from 'models/vault-input-type';
 import AlertDialog, {
     AlertDialogProps,
 } from '../../../common/components/alert-dialog';
+import _ from 'lodash';
 
 const DEFAULTS = {
     type: '',
@@ -76,6 +79,14 @@ function Taxonomy() {
     // input
     const [addInputKey, setAddInputKey] = useState('');
     const [addInputModalOpen, seteAddInputModalOpen] = useState(false);
+
+    // name change
+    const [nameChangeModalOpen, setNameChangeModalOpen] = useState(false);
+    const [newName, setNewName] = useState('');
+    const [nameChangeOld, setNameChangeOld] = useState('');
+    const [nameChangeId, setNameChangeId] = useState('');
+    const [nameChangeType, setNameChangeType] = useState('');
+    const [nameChangeProgress, setNameChangeProgress] = useState(false);
 
     const [dialog, setDialog] =
         React.useState<Partial<AlertDialogProps> | null>(null);
@@ -301,19 +312,36 @@ function Taxonomy() {
             </Box>
         );
     };
+    const handleNameChange = (
+        id: string,
+        type: string,
+        existingName: string,
+    ) => {
+        setNameChangeId(id);
+        setNameChangeType(type);
+        setNewName(existingName);
+        setNameChangeOld(existingName);
+    };
     const getSubCategoryAccordion = (categoryId: string) => {
         if (data === null) {
             return [];
         }
         return (
             <TaxonomyAccordion
-                items={data[categoryId].subCategories
+                onPressChangeName={handleNameChange}
+                items={_.orderBy(
+                    data[categoryId].subCategories,
+                    ['createdAt'],
+                    ['desc'],
+                )
                     .map(subcategory => ({
                         label: subcategory.subCategoryName,
                         content: showInputs(
                             categoryId,
                             subcategory.subCategoryId,
                         ),
+                        id: subcategory.subCategoryId,
+                        type: 'subCategory',
                     }))
                     .concat([
                         {
@@ -330,6 +358,8 @@ function Taxonomy() {
                                     </Button>
                                 </Box>
                             ),
+                            id: '',
+                            type: 'subCategory',
                         },
                     ])}
             />
@@ -343,6 +373,8 @@ function Taxonomy() {
             return {
                 label: data[categoryId].categoryName,
                 content: getSubCategoryAccordion(categoryId),
+                id: categoryId,
+                type: 'category',
             };
         });
     };
@@ -522,6 +554,14 @@ function Taxonomy() {
         }
     };
 
+    const resetNameChange = () => {
+        setNewName('');
+        setNameChangeId('');
+        setNameChangeType('');
+        setNameChangeModalOpen(false);
+        setNameChangeOld('');
+    };
+
     const handleModalClose = () => {
         setNewCategoryOpen(false);
         setNewSubCategoryOpen(false);
@@ -532,6 +572,7 @@ function Taxonomy() {
         setCatIdForSubCat('');
         setAddInputKey('');
         setEditInputId('');
+        resetNameChange();
         resetInputForm();
     };
     const canAddSubCategory = () => {
@@ -878,7 +919,10 @@ function Taxonomy() {
         return (
             <Box>
                 <Box>
-                    <TaxonomyAccordion items={getAccordionItems()} />
+                    <TaxonomyAccordion
+                        onPressChangeName={handleNameChange}
+                        items={getAccordionItems()}
+                    />
                 </Box>
                 <Box mt={2}>
                     <Button
@@ -893,6 +937,79 @@ function Taxonomy() {
             </Box>
         );
     };
+    useEffect(() => {
+        if (nameChangeId !== '' && nameChangeType !== '') {
+            setNameChangeModalOpen(true);
+            console.log('name modal to open');
+        }
+    }, [nameChangeId, nameChangeType]);
+    const canChangeName = () => {
+        return newName !== '';
+    };
+    const doNameChange = async () => {
+        const payload = {
+            id: nameChangeId,
+            type: nameChangeType,
+            newName: newName,
+        } as IVaultVaultTaxonomyNameUpdateReq;
+        console.log('nameChange payload', payload);
+        try {
+            setNameChangeProgress(true);
+            const res = await updateTaxonomyName(payload);
+            setNameChangeProgress(false);
+            if (res.data === 'ok') {
+                notify({
+                    message: 'Name changed',
+                    severity: 'success',
+                });
+                resetNameChange();
+                await fetchData();
+            } else {
+                notify({
+                    message: res.data,
+                    severity: 'warning',
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            notify({
+                message: 'Failed to update name',
+                severity: 'warning',
+            });
+        }
+    };
+    const getNameChangeModalContent = () => {
+        if (progress) {
+            return <ProgressIndicator />;
+        }
+        return (
+            <Box>
+                <Box mt={2} mb={1.4}>
+                    New name
+                </Box>
+                <Box mb={1.4}>
+                    <CustomTextField
+                        id={'newName'}
+                        value={newName}
+                        onChange={setNewName}
+                        style={{width: '100%'}}
+                    />
+                </Box>
+                <Box>
+                    <Box mb={1}>
+                        <s>{nameChangeOld}</s> <strong>{newName}</strong>
+                    </Box>
+                    <br />
+                    <CustomButton
+                        disabled={!canChangeName()}
+                        label={'Update name'}
+                        progress={nameChangeProgress}
+                        onClick={doNameChange}
+                    />
+                </Box>
+            </Box>
+        );
+    };
     return (
         <Box>
             {fetching ? <ProgressIndicator /> : getCategoryAccordion()}
@@ -901,6 +1018,13 @@ function Taxonomy() {
                 setOpen={setNewCategoryOpen}
                 title={'Add new category'}
                 dialogContent={getNewCategoryModalContent()}
+                onClose={handleModalClose}
+            />
+            <CustomDialog
+                open={nameChangeModalOpen}
+                setOpen={setNameChangeModalOpen}
+                title={'Change name'}
+                dialogContent={getNameChangeModalContent()}
                 onClose={handleModalClose}
             />
             <CustomDialog
