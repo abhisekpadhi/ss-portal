@@ -18,6 +18,7 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import PreviewIcon from '@mui/icons-material/Preview';
 import {COLORS} from '../../constants';
+import GroupIcon from '@mui/icons-material/Group';
 
 const drawerWidth = 240;
 const pathsToHideNav = ['/login', '/'];
@@ -40,8 +41,13 @@ const paths = [
     },
     {
         path: '/app/learn',
-        name: 'learn',
+        name: 'Learn',
         icon: <SchoolIcon />,
+    },
+    {
+        path: '/app/users',
+        name: 'Users',
+        icon: <GroupIcon />,
     },
 ];
 

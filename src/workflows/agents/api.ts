@@ -26,3 +26,9 @@ export const removeAgent = (payload: IAgentRemoveRequest) => {
         payload,
     );
 };
+
+export const getAllAgents = (payload: {limit: number; offset: number}) => {
+    return ApiUtils.makeGetRequest<{data: IAgent[]}>(
+        API_BASE + ApiRoutes.agents.routes.getAllAgents + makeParams(payload),
+    );
+};

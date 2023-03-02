@@ -4,10 +4,7 @@ import {useState} from 'react';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import SearchAgent from './components/SearchAgent';
-import AddAgent from './components/AddAgent';
-import RemoveAgent from './components/RemoveAgent';
-import GetAllAgentsTable from './components/GetAllAgentsTable';
+import GetAllUsersTable from './components/GetAllUsersTable';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -41,7 +38,7 @@ function a11yProps(index: number) {
     };
 }
 
-function AgentsScreen() {
+function UserAccountsScreen() {
     const [value, setValue] = useState(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -54,26 +51,14 @@ function AgentsScreen() {
                     value={value}
                     onChange={handleChange}
                     aria-label="basic tabs example">
-                    <Tab label="All agents" {...a11yProps(0)} />
-                    <Tab label="Search agent" {...a11yProps(1)} />
-                    <Tab label="Add agent" {...a11yProps(2)} />
-                    <Tab label="Remove agent" {...a11yProps(3)} />
+                    <Tab label="All users" {...a11yProps(0)} />
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                <GetAllAgentsTable />
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-                <SearchAgent />
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-                <AddAgent />
-            </TabPanel>
-            <TabPanel value={value} index={3}>
-                <RemoveAgent />
+                <GetAllUsersTable />
             </TabPanel>
         </Container>
     );
 }
 
-export default AgentsScreen;
+export default UserAccountsScreen;
